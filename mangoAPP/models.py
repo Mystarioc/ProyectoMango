@@ -21,6 +21,7 @@ class Viveros(models.Model):
     telefono = models.CharField(max_length=15)
     correo = models.EmailField()
     ubicacion = models.CharField(max_length=255)
+    
     def __str__(self):
         return self.nombre
 
@@ -44,6 +45,7 @@ class Planta(models.Model):
     Id_vivero = models.ForeignKey('Viveros', on_delete=models.CASCADE)  # Campo para ID_movil como clave foránea    
     nombre = models.CharField(max_length=100)
     informacion_general = models.TextField(max_length=500)
+    
     def __str__(self):
         return self.nombre
     
@@ -55,6 +57,7 @@ class enfermedad(models.Model):
     fase = models.CharField(max_length=100)
     fase_image = models.TextField(default='')
     informacion_general = models.CharField(max_length=500)
+    
     def __str__(self):
         return self.nombre
     
@@ -68,3 +71,15 @@ class Tratamientos(models.Model):
 
     def __str__(self):
         return self.producto_quimico
+    
+#####  Registro_enfermedad #####
+class Registros_enfermedad(models.Model):
+    Id_reg_enfer = models.AutoField(primary_key=True)
+    nombre_planta = models.CharField(max_length=100)
+    nombre_enfer = models.CharField(max_length=100)  # Campo para ID_movil como clave foránea    
+    fase=models.CharField(max_length=3)
+    imagen= models.TextField()
+
+    def __str__(self):
+        return self.fase   
+ 

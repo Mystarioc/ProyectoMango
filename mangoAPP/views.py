@@ -7,7 +7,7 @@ from keras.models import load_model
 import base64
 from django.core.exceptions import ValidationError 
 from django.core.validators  import validate_email
-from .models import UserProfile,Planta ,Tratamientos,Viveros,enfermedad ,Empleados 
+from .models import UserProfile,Planta ,Tratamientos,Viveros,enfermedad ,Empleados,Registros_enfermedad
 import json
 from PIL import Image
 import numpy as np
@@ -123,49 +123,6 @@ def LoginUser(request):
         'status': 'error'
     }
     return JsonResponse(data)
-
-@csrf_exempt
-def Prediccted(request):
-    if request.method == 'POST':  
-            # Procesar la imagen aquí
-       
-            if 'image' in request.FILES:
-                image_file = request.FILES['image']
-                
-                # Crea una instancia de PIL Image desde el archivo
-            
-                image = Image.open(image_file).convert("RGB")
-                image = image.resize((224, 224))
-
-                # Convert the image to a NumPy array
-                image = np.array(image)
-                image = image / 255.0
-                image = image.reshape(1, 224, 224, 3)
-                print(image.shape)
-                
-                model_path = './(Adam_39.42%)Mobilnet.h5'
-                model = load_model(model_path)
-                # Predict the label
-                prediction = model.predict(image)
-                prediction = prediction.tolist()
-
-                # Obtener el valor más alto en la lista anidada
-                valor_mas_alto = max(prediction[0])
-                print(valor_mas_alto)
-                # Obtener el índice del valor más alto
-                indice_mas_alto = prediction[0].index(valor_mas_alto)
-                
-                data = {
-                    'status': 'success',
-                    'predict': indice_mas_alto
-                }
-                return JsonResponse(data)
-            else:
-                data = {
-                    'message': 'No se proporcionó ninguna imagen',
-                    'status': 'error'
-                }
-                return JsonResponse(data)
             
 @csrf_exempt
 def imageBase64(request):
@@ -1672,6 +1629,76 @@ def obtener_todos_los_tratamientos(request):
         'status': 'error'
     }
     return JsonResponse(data, status=405)
+
+################################################################################
+################### Registro enfermedades ######################################
+################################################################################
+
+@csrf_exempt
+def Prediccted(request):
+    if request.method == 'POST':
+        # Procesar la imagen aquí
+
+        if 'image' in request.FILES:
+            image_file = request.FILES['image']
+
+            # Crea una instancia de PIL Image desde el archivo
+
+            image = Image.open(image_file).convert("RGB")
+            image = image.resize((224, 224))
+
+            # Convertir la imagen a una cadena Base64
+            image_base64 = base64.b64encode(image.tobytes()).decode('utf-8')
+
+            # Convert the image to a NumPy array
+            image = np.array(image)
+            image = image / 255.0
+            image = image.reshape(1, 224, 224, 3)
+            print(image.shape)
+
+            model_path = './(Adam_39.42%)Mobilnet.h5'
+            model = load_model(model_path)
+            # Predict the label
+            prediction = model.predict(image)
+            prediction = prediction.tolist()
+
+            # Obtener el valor más alto en la lista anidada
+            valor_mas_alto = max(prediction[0])
+            print(valor_mas_alto)
+            # Obtener el índice del valor más alto
+            indice_mas_alto = prediction[0].index(valor_mas_alto)
+
+            # Obtener los campos nombre de planta, enfermedad y predict
+            nombre_planta = 'Mango'
+            enfermedad = 'hongos'
+            predict = indice_mas_alto
+
+            # Guardar los campos en la tabla Registros_enfermedad
+            registro = Registros_enfermedad(
+                nombre_planta=nombre_planta,
+                nombre_enfer=enfermedad,
+                fase=str(predict),  # Convierte predict en una cadena
+                imagen=image_base64  # Guarda la imagen como Base64
+            )
+            registro.save()
+
+            data = {
+                'status': 'success',
+                'nombre de planta': nombre_planta,
+                'enfermedad': enfermedad,
+                'Fase': predict
+            }
+            return JsonResponse(data)
+        else:
+            data = {
+                'message': 'No se proporcionó ninguna imagen',
+                'status': 'error'
+            }
+            return JsonResponse(data)
+
+
+
+
 
 
 
