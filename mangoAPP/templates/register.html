@@ -1,0 +1,18 @@
+<h1>Register</h1>
+
+    
+    <form method="POST">
+        {% csrf_token %}
+        <label for="id_username">Usuario:</label>
+        <input type="text" name="username" id="id_username">
+        <label for="id_password1">Contraseña:</label>
+        <input type="password" name="password1" id="id_password1">
+        <label for="id_password2">Confirmar contraseña:</label>
+        <input type="password" name="password2" id="id_password2">
+        <!-- Otros campos y botones aquí -->
+
+    <button>
+        Register
+    </button>
+</form>
+  
